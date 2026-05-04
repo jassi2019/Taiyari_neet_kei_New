@@ -15,13 +15,13 @@ const updateV1 = async (req, res, next) => {
       chapterId,
       subjectId,
       classId,
-      explanation,
-      revisionRecall,
-      hiddenLinks,
-      exerciseRevival,
-      masterExemplar,
-      pyq,
-      chapterCheckpoint,
+      explanationContent,
+      revisionContent,
+      hiddenLinksContent,
+      exerciseRevivalContent,
+      masterExemplarContent,
+      pyqContent,
+      chapterCheckpointContent,
     } = req.body;
 
     let contentThumbnail = undefined;
@@ -38,7 +38,8 @@ const updateV1 = async (req, res, next) => {
       resolvedContentURL = getDesignViewUrl(design) || contentURL;
     }
 
-    const updateData = {
+    // Build update payload only with defined fields, so unrelated slots aren't overwritten.
+    const updatePayload = {
       name,
       description,
       contentURL: resolvedContentURL,
@@ -50,17 +51,20 @@ const updateV1 = async (req, res, next) => {
       subjectId,
       classId,
     };
+    const featureFields = {
+      explanationContent,
+      revisionContent,
+      hiddenLinksContent,
+      exerciseRevivalContent,
+      masterExemplarContent,
+      pyqContent,
+      chapterCheckpointContent,
+    };
+    for (const [key, value] of Object.entries(featureFields)) {
+      if (value !== undefined) updatePayload[key] = value;
+    }
 
-    // Only include feature fields if they are explicitly provided
-    if (explanation !== undefined) updateData.explanation = explanation;
-    if (revisionRecall !== undefined) updateData.revisionRecall = revisionRecall;
-    if (hiddenLinks !== undefined) updateData.hiddenLinks = hiddenLinks;
-    if (exerciseRevival !== undefined) updateData.exerciseRevival = exerciseRevival;
-    if (masterExemplar !== undefined) updateData.masterExemplar = masterExemplar;
-    if (pyq !== undefined) updateData.pyq = pyq;
-    if (chapterCheckpoint !== undefined) updateData.chapterCheckpoint = chapterCheckpoint;
-
-    const doc = await Topic.update(updateData, { where: { id: topicId } });
+    const doc = await Topic.update(updatePayload, { where: { id: topicId } });
 
     return res
       .status(200)

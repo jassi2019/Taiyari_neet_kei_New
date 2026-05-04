@@ -29,7 +29,7 @@ type TopicsScreenProps = {
       chapterTitle?: string;
       subjectTitle?: string;
       chapterNumber?: number;
-      featureType?: string;
+      featureName?: string;
     };
   };
 };
@@ -55,7 +55,7 @@ const Topics = ({ navigation, route }: TopicsScreenProps) => {
   const chapterTitle = route?.params?.chapterTitle || 'Topics';
   const subjectTitle = route?.params?.subjectTitle;
   const chapterNumber = route?.params?.chapterNumber;
-  const featureType = route?.params?.featureType;
+  const featureName = route?.params?.featureName;
 
   const { isGuest, user } = useAuth();
   const [showPremiumModal, setShowPremiumModal] = useState(false);
@@ -104,20 +104,7 @@ const Topics = ({ navigation, route }: TopicsScreenProps) => {
         return;
       }
     }
-
-    // If viewing a feature, override the contentURL with the feature-specific URL
-    if (featureType && FEATURE_TYPE_TO_FIELD[featureType as TFeatureType]) {
-      const field = FEATURE_TYPE_TO_FIELD[featureType as TFeatureType];
-      const featureURL = topic[field] as string;
-      if (featureURL) {
-        navigation.navigate('TopicContent', {
-          topic: { ...topic, contentURL: featureURL },
-        });
-        return;
-      }
-    }
-
-    navigation.navigate('TopicContent', { topic });
+    navigation.navigate('TopicContent', { topic, featureName });
   };
 
   if (!isGuest && (isLoading || favoritesLoading)) {

@@ -28,13 +28,13 @@ import { getTopics, deleteTopic } from "@/services/topics";
 import Image from "next/image";
 
 const FEATURE_LABELS = {
-  explanation: "Explanation",
-  revision_recall: "Revision Recall",
-  hidden_links: "Hidden Links",
-  exercise_revival: "Exercise Revival",
-  master_exemplar: "Master Exemplar",
-  pyq: "PYQs",
-  chapter_checkpoint: "Chapter Checkpoint",
+  explanation: "💡 Explanation",
+  revision_recall: "🧠 Revision Recall",
+  hidden_links: "🔗 Hidden Links",
+  exercise_revival: "📋 Exercise Revival",
+  master_exemplar: "🏆 Master Exemplar",
+  pyq: "📖 PYQs",
+  chapter_checkpoint: "🛡️ Chapter Checkpoint",
 };
 
 function TopicsPageInner() {

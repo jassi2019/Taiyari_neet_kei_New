@@ -21,16 +21,20 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 type SubjectsScreenProps = {
   navigation: any;
-  route?: {
-    params?: {
-      featureType?: string;
-    };
-  };
+  route?: { params?: { featureName?: string } };
 };
 
 type SubjectMeta = {
   emoji: string;
   gradient: [string, string];
+};
+
+const NEET_CHAPTER_COUNTS: Record<string, number> = {
+  botany: 22,
+  zoology: 20,
+  physics: 29,
+  chemistry: 30,
+  biology: 42,
 };
 
 const SUBJECT_META: Record<string, SubjectMeta> = {
@@ -54,7 +58,7 @@ const getMetaFor = (name: string): SubjectMeta => {
 };
 
 export const Subjects = ({ navigation, route }: SubjectsScreenProps) => {
-  const featureType = route?.params?.featureType;
+  const featureName = route?.params?.featureName;
   const { isGuest } = useAuth();
   const { data, isLoading, error } = useGetAllSubjects({ enabled: !isGuest });
   const { data: classesData } = useGetAllClasses({ enabled: !isGuest });
@@ -105,7 +109,7 @@ export const Subjects = ({ navigation, route }: SubjectsScreenProps) => {
       subjectId: subject.id,
       subjectTitle: subject.name,
       classId,
-      featureType,
+      featureName,
     });
   };
 
@@ -139,12 +143,12 @@ export const Subjects = ({ navigation, route }: SubjectsScreenProps) => {
             <TouchableOpacity onPress={handleBack} style={styles.backBtn} activeOpacity={0.7}>
               <ChevronLeft size={22} color="#111" />
             </TouchableOpacity>
-            <Text style={styles.topTitle}>Subjects</Text>
+            <Text style={styles.topTitle}>{featureName || 'Subjects'}</Text>
           </View>
 
           <View style={styles.headerPanel}>
             <Text style={styles.headerGreet}>Choose your subject 📚</Text>
-            <Text style={styles.headerTitle}>Explore & Master NEET</Text>
+            <Text style={styles.headerTitle}>{featureName ? featureName : 'Explore & Master NEET'}</Text>
           </View>
         </View>
 
@@ -154,9 +158,10 @@ export const Subjects = ({ navigation, route }: SubjectsScreenProps) => {
             {subjects.map((subject, idx) => {
               const meta = getMetaFor(subject.name);
               const num = String(idx + 1).padStart(2, '0');
+              const apiCount = Number((subject as any).chapterCount ?? 0);
               const chapterCount = isGuest
                 ? getGuestChaptersBySubjectAndClass(subject.id, null).length
-                : (subject as any).chapterCount ?? (subject as any).Chapter?.length ?? 0;
+                : apiCount > 0 ? apiCount : NEET_CHAPTER_COUNTS[subject.name?.toLowerCase()] ?? 0;
               const { pct, total } = getSubjectProgress(subject);
 
               return (
@@ -208,7 +213,7 @@ export const Subjects = ({ navigation, route }: SubjectsScreenProps) => {
           </View>
 
           {/* Info Bar */}
-          <TouchableOpacity style={styles.infoBar} activeOpacity={0.85}>
+          <TouchableOpacity style={styles.infoBar} activeOpacity={0.85} onPress={() => navigation.navigate('MainTabs', { screen: 'TestsTab' })}>
             <View style={styles.infoIcon}>
               <Text style={{ fontSize: 20 }}>💡</Text>
             </View>

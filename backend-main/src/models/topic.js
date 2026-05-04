@@ -19,17 +19,48 @@ const Topic = db.define(
       type: DataTypes.TEXT,
       allowNull: false,
     },
+    // Legacy main content — now optional, since 7 per-feature slots can replace it.
     contentURL: {
       type: DataTypes.TEXT,
-      allowNull: false,
+      allowNull: true,
     },
     contentThumbnail: {
       type: DataTypes.TEXT,
-      allowNull: false,
+      allowNull: true,
     },
     contentId: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
+    },
+    // Per-feature content slots — each stores a content URL string.
+    // Falls back to legacy contentURL when null.
+    explanationContent: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    revisionContent: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    hiddenLinksContent: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    exerciseRevivalContent: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    masterExemplarContent: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    pyqContent: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    chapterCheckpointContent: {
+      type: DataTypes.TEXT,
+      allowNull: true,
     },
     sequence: {
       type: DataTypes.INTEGER,
