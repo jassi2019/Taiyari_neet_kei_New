@@ -9,6 +9,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 type TGetTopicsParams = {
   chapterId: string;
   subjectId: string;
+  featureType?: string;
 };
 
 const getTopicsByChapterIdAndSubjectId = (params: TGetTopicsParams): TApiPromise<TTopic[]> => {
@@ -43,7 +44,7 @@ export const useGetTopicsByChapterIdAndSubjectId = (
   options?: TQueryOpts<TTopic[]>
 ) => {
   return useQuery({
-    queryKey: ['topics', data.chapterId, data.subjectId],
+    queryKey: ['topics', data.chapterId, data.subjectId, data.featureType || ''],
     queryFn: () => getTopicsByChapterIdAndSubjectId(data),
     ...options,
   });

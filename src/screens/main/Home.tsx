@@ -31,13 +31,13 @@ type HomeScreenProps = {
 };
 
 const DEFAULT_FEATURES = [
-  { icon: '💡', num: '1.', name: 'Explanation', desc: 'Detailed explanation of every topic' },
-  { icon: '🧠', num: '2.', name: 'Revision Recall Station', desc: 'Smart revision to retain better' },
-  { icon: '🔗', num: '3.', name: 'Hidden Links', desc: 'Connect concepts unlock clarity' },
-  { icon: '📋', num: '4.', name: 'Exercise Revival', desc: 'From Back exercise to Mastery' },
-  { icon: '🏆', num: '5.', name: 'Master Exemplar', desc: 'Exemplar Deep Practice Zone' },
-  { icon: '📖', num: '6.', name: 'Previous Year Questions', desc: 'PYQ to Question Mastery' },
-  { icon: '🛡️', num: '7.', name: 'Chapter Check Point', desc: 'Full chapter test to check your real preparation' },
+  { icon: '💡', num: '1.', name: 'Explanation', desc: 'Detailed explanation of every topic', featureType: 'explanation' },
+  { icon: '🧠', num: '2.', name: 'Revision Recall Station', desc: 'Smart revision to retain better', featureType: 'revision_recall' },
+  { icon: '🔗', num: '3.', name: 'Hidden Links', desc: 'Connect concepts unlock clarity', featureType: 'hidden_links' },
+  { icon: '📋', num: '4.', name: 'Exercise Revival', desc: 'From Back exercise to Mastery', featureType: 'exercise_revival' },
+  { icon: '🏆', num: '5.', name: 'Master Exemplar', desc: 'Exemplar Deep Practice Zone', featureType: 'master_exemplar' },
+  { icon: '📖', num: '6.', name: 'Previous Year Questions', desc: 'PYQ to Question Mastery', featureType: 'pyq' },
+  { icon: '🛡️', num: '7.', name: 'Chapter Check Point', desc: 'Full chapter test to check your real preparation', featureType: 'chapter_checkpoint' },
 ];
 
 const DEFAULT_TESTS = [
@@ -59,6 +59,7 @@ export const Home = ({ navigation }: HomeScreenProps) => {
         num: `${i + 1}.`,
         name: f.title,
         desc: f.description || '',
+        featureType: DEFAULT_FEATURES[i]?.featureType || DEFAULT_FEATURES[0].featureType,
       }));
     }
     return DEFAULT_FEATURES;
@@ -86,6 +87,10 @@ export const Home = ({ navigation }: HomeScreenProps) => {
 
   const goToFreeContent = () => {
     navigation.navigate('MainTabs', { screen: 'SubjectsTab' });
+  };
+
+  const goToFeature = (featureType: string) => {
+    navigation.navigate('MainTabs', { screen: 'SubjectsTab', params: { featureType } });
   };
 
   const { currentStreak, longestStreak, visitedDates, totalDaysStudied } = useStreak();
@@ -169,12 +174,12 @@ export const Home = ({ navigation }: HomeScreenProps) => {
           {/* 8 Features */}
           <View style={styles.section}>
             <View style={styles.featGrid}>
-              {FEATURES.map((f, i) => (
+              {FEATURES.map((f: any, i: number) => (
                 <TouchableOpacity
                   key={i}
                   style={styles.featCard}
                   activeOpacity={0.7}
-                  onPress={goToFreeContent}
+                  onPress={() => goToFeature(f.featureType)}
                 >
                   <Text style={styles.featIco}>{f.icon}</Text>
                   <Text style={styles.featNum}>{f.num} {f.name}</Text>

@@ -21,6 +21,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 type SubjectsScreenProps = {
   navigation: any;
+  route?: {
+    params?: {
+      featureType?: string;
+    };
+  };
 };
 
 type SubjectMeta = {
@@ -48,7 +53,8 @@ const getMetaFor = (name: string): SubjectMeta => {
   return SUBJECT_META[key] || FALLBACK_META;
 };
 
-export const Subjects = ({ navigation }: SubjectsScreenProps) => {
+export const Subjects = ({ navigation, route }: SubjectsScreenProps) => {
+  const featureType = route?.params?.featureType;
   const { isGuest } = useAuth();
   const { data, isLoading, error } = useGetAllSubjects({ enabled: !isGuest });
   const { data: classesData } = useGetAllClasses({ enabled: !isGuest });
@@ -99,6 +105,7 @@ export const Subjects = ({ navigation }: SubjectsScreenProps) => {
       subjectId: subject.id,
       subjectTitle: subject.name,
       classId,
+      featureType,
     });
   };
 

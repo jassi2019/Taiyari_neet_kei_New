@@ -32,6 +32,16 @@ const PAYMENT_PLATFORMS = Object.freeze({
   CASHFREE: "CASHFREE",
 });
 
+const FEATURE_TYPE_TO_FIELD = Object.freeze({
+  explanation: "explanation",
+  revision_recall: "revisionRecall",
+  hidden_links: "hiddenLinks",
+  exercise_revival: "exerciseRevival",
+  master_exemplar: "masterExemplar",
+  pyq: "pyq",
+  chapter_checkpoint: "chapterCheckpoint",
+});
+
 module.exports = {
   ROLES,
   PAYMENT_STATUSES,
@@ -39,4 +49,5 @@ module.exports = {
   REGISTRATION_SOURCES,
   OTP_TYPES,
   PAYMENT_PLATFORMS,
+  FEATURE_TYPE_TO_FIELD,
 };

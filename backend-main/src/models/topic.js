@@ -40,6 +40,34 @@ const Topic = db.define(
       allowNull: false,
       defaultValue: SERVICE_TYPES.PREMIUM,
     },
+    explanation: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    revisionRecall: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    hiddenLinks: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    exerciseRevival: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    masterExemplar: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    pyq: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    chapterCheckpoint: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
     chapterId: {
       type: DataTypes.UUID,
       allowNull: false,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,6 +19,7 @@ import {
   IndianRupee,
   ListOrdered,
   Search,
+  ArrowLeft,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { getTopic, updateTopic } from "@/services/topics";
@@ -27,10 +28,35 @@ import { getSubjects } from "@/services/subject";
 import { getClasses } from "@/services/class";
 import { getDesigns } from "@/services/canva";
 import useToast from "@/hooks/useToast";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Loader from "@/components/custom/loader";
 
-export default function EditTopicPage() {
+const FEATURE_LABELS = {
+  explanation: "Explanation",
+  revision_recall: "Revision Recall",
+  hidden_links: "Hidden Links",
+  exercise_revival: "Exercise Revival",
+  master_exemplar: "Master Exemplar",
+  pyq: "PYQs",
+  chapter_checkpoint: "Chapter Checkpoint",
+};
+
+const FEATURE_TO_FIELD = {
+  explanation: "explanation",
+  revision_recall: "revisionRecall",
+  hidden_links: "hiddenLinks",
+  exercise_revival: "exerciseRevival",
+  master_exemplar: "masterExemplar",
+  pyq: "pyq",
+  chapter_checkpoint: "chapterCheckpoint",
+};
+
+function EditTopicPageInner() {
+  const searchParams = useSearchParams();
+  const featureFilter = searchParams.get("feature");
+  const featureLabel = featureFilter ? FEATURE_LABELS[featureFilter] : null;
+  const featureField = featureFilter ? FEATURE_TO_FIELD[featureFilter] : null;
+
   const [subjects, setSubjects] = useState([]);
   const [classes, setClasses] = useState([]);
   const [chapters, setChapters] = useState([]);
@@ -55,13 +81,20 @@ export default function EditTopicPage() {
     classId: "",
     sequence: 1,
     serviceType: "PREMIUM",
+    explanation: "",
+    revisionRecall: "",
+    hiddenLinks: "",
+    exerciseRevival: "",
+    masterExemplar: "",
+    pyq: "",
+    chapterCheckpoint: "",
   });
 
   const loadTopic = async () => {
     setIsLoading(true);
     try {
       const { data } = await getTopic(topicId);
-      setFormData(data);
+      setFormData((prev) => ({ ...prev, ...data }));
     } catch (error) {
       showError(error);
     } finally {
@@ -70,6 +103,7 @@ export default function EditTopicPage() {
   };
 
   const loadInitials = async () => {
+    if (featureFilter) return; // No need to load dropdowns for feature edit
     setIsLoading(true);
     try {
       const { data: subjectDocs } = await getSubjects();
@@ -88,6 +122,22 @@ export default function EditTopicPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (featureFilter) {
+      // Only save the feature field
+      try {
+        setIsLoading(true);
+        await updateTopic(topicId, { [featureField]: formData[featureField] });
+        showSuccess(`${featureLabel} content updated successfully`);
+        router.push(`/topics?feature=${featureFilter}`);
+      } catch (error) {
+        showError(error);
+      } finally {
+        setIsLoading(false);
+      }
+      return;
+    }
+
     if (isDirty()) {
       showError("Please fill all the fields");
       return;
@@ -154,6 +204,77 @@ export default function EditTopicPage() {
     return <Loader />;
   }
 
+  // Feature-specific edit view — simple URL input
+  if (featureFilter && featureField) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="border-b bg-gradient-to-b from-background to-muted/20">
+          <div className="container mx-auto px-4 py-8">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="mb-4"
+              onClick={() => router.push(`/topics?feature=${featureFilter}`)}
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to {featureLabel} Content
+            </Button>
+            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+              Edit {featureLabel} — {formData.name}
+            </h1>
+            <p className="text-muted-foreground mt-2 text-lg">
+              {formData.Subject?.name} • {formData.Class?.name} • {formData.Chapter?.name}
+            </p>
+          </div>
+        </div>
+
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-3xl mx-auto">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="space-y-4">
+                    <h2 className="text-xl font-semibold">{featureLabel} Content URL</h2>
+                    <p className="text-sm text-muted-foreground">
+                      Paste the Canva or content URL for {featureLabel} of this topic
+                    </p>
+                    <Input
+                      value={formData[featureField] || ""}
+                      onChange={(e) =>
+                        setFormData({ ...formData, [featureField]: e.target.value })
+                      }
+                      placeholder={`Enter ${featureLabel} content URL`}
+                      className="shadow-sm"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <div className="flex justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => router.push(`/topics?feature=${featureFilter}`)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  size="lg"
+                  disabled={isLoading}
+                  className="shadow-lg hover:shadow-primary/25 transition-all"
+                >
+                  Save {featureLabel}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Normal topic edit view
   return (
     <div className="min-h-screen bg-background">
       {/* Enhanced Header Section */}
@@ -551,5 +672,13 @@ export default function EditTopicPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function EditTopicPage() {
+  return (
+    <Suspense fallback={<div />}>
+      <EditTopicPageInner />
+    </Suspense>
   );
 }

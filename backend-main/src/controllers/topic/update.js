@@ -15,6 +15,13 @@ const updateV1 = async (req, res, next) => {
       chapterId,
       subjectId,
       classId,
+      explanation,
+      revisionRecall,
+      hiddenLinks,
+      exerciseRevival,
+      masterExemplar,
+      pyq,
+      chapterCheckpoint,
     } = req.body;
 
     let contentThumbnail = undefined;
@@ -31,21 +38,29 @@ const updateV1 = async (req, res, next) => {
       resolvedContentURL = getDesignViewUrl(design) || contentURL;
     }
 
-    const doc = await Topic.update(
-      {
-        name,
-        description,
-        contentURL: resolvedContentURL,
-        contentThumbnail,
-        contentId,
-        sequence,
-        serviceType,
-        chapterId,
-        subjectId,
-        classId,
-      },
-      { where: { id: topicId } }
-    );
+    const updateData = {
+      name,
+      description,
+      contentURL: resolvedContentURL,
+      contentThumbnail,
+      contentId,
+      sequence,
+      serviceType,
+      chapterId,
+      subjectId,
+      classId,
+    };
+
+    // Only include feature fields if they are explicitly provided
+    if (explanation !== undefined) updateData.explanation = explanation;
+    if (revisionRecall !== undefined) updateData.revisionRecall = revisionRecall;
+    if (hiddenLinks !== undefined) updateData.hiddenLinks = hiddenLinks;
+    if (exerciseRevival !== undefined) updateData.exerciseRevival = exerciseRevival;
+    if (masterExemplar !== undefined) updateData.masterExemplar = masterExemplar;
+    if (pyq !== undefined) updateData.pyq = pyq;
+    if (chapterCheckpoint !== undefined) updateData.chapterCheckpoint = chapterCheckpoint;
+
+    const doc = await Topic.update(updateData, { where: { id: topicId } });
 
     return res
       .status(200)

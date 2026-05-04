@@ -11,15 +11,16 @@
       "resizeMode": "contain",
       "backgroundColor": "#F59E0B"
     },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "updates": {
       "fallbackToCacheTimeout": 0
     },
     "assetBundlePatterns": [
       "**/*"
     ],
-    "plugins": [
-      "./plugins/withRazorpayConfig"
-    ],
+    
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.taiyarineetki.educationapp",

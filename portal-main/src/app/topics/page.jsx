@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -21,13 +21,26 @@ import {
   Trash,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Loader from "@/components/custom/loader";
 import useToast from "@/hooks/useToast";
 import { getTopics, deleteTopic } from "@/services/topics";
 import Image from "next/image";
 
-export default function TopicsPage() {
+const FEATURE_LABELS = {
+  explanation: "Explanation",
+  revision_recall: "Revision Recall",
+  hidden_links: "Hidden Links",
+  exercise_revival: "Exercise Revival",
+  master_exemplar: "Master Exemplar",
+  pyq: "PYQs",
+  chapter_checkpoint: "Chapter Checkpoint",
+};
+
+function TopicsPageInner() {
+  const searchParams = useSearchParams();
+  const featureFilter = searchParams.get("feature");
+  const featureLabel = featureFilter ? FEATURE_LABELS[featureFilter] || featureFilter : null;
   const [isLoading, setIsLoading] = useState(false);
   const [topics, setTopics] = useState([]);
 
@@ -36,7 +49,7 @@ export default function TopicsPage() {
   const loadTopics = async () => {
     setIsLoading(true);
     try {
-      const { data } = await getTopics();
+      const { data } = await getTopics(featureFilter);
       setTopics(data);
     } catch (error) {
       showError(error);
@@ -47,7 +60,7 @@ export default function TopicsPage() {
 
   useEffect(() => {
     loadTopics();
-  }, []);
+  }, [featureFilter]);
 
   const router = useRouter();
 
@@ -56,7 +69,8 @@ export default function TopicsPage() {
   };
 
   const onEditTopic = (topicId) => {
-    router.push(`/topics/${topicId}`);
+    const featureParam = featureFilter ? `?feature=${featureFilter}` : "";
+    router.push(`/topics/${topicId}${featureParam}`);
   };
 
   const onDeleteTopic = async (topicId) => {
@@ -86,20 +100,22 @@ export default function TopicsPage() {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
               <h1 className="text-3xl sm:text-4xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                Topics
+                {featureLabel ? `${featureLabel} Content` : "Topics"}
               </h1>
               <p className="text-muted-foreground mt-2 text-lg">
-                Master your NEET preparation one topic at a time
+                {featureLabel ? `Add/edit ${featureLabel} content for each topic` : "Master your NEET preparation one topic at a time"}
               </p>
             </div>
-            <Button
-              size="lg"
-              className="shadow-lg hover:shadow-primary/25 transition-all"
-              onClick={onAddNewTopic}
-            >
-              <Plus className="w-5 h-5 mr-2" />
-              Add New Topic
-            </Button>
+            {!featureFilter && (
+              <Button
+                size="lg"
+                className="shadow-lg hover:shadow-primary/25 transition-all"
+                onClick={onAddNewTopic}
+              >
+                <Plus className="w-5 h-5 mr-2" />
+                Add New Topic
+              </Button>
+            )}
           </div>
         </div>
       </div>
@@ -189,22 +205,39 @@ export default function TopicsPage() {
                   className="w-full hover:bg-primary hover:text-white transition-colors"
                 >
                   <Pencil className="h-4 w-4 mr-2" />
-                  Edit Topic
+                  {featureFilter ? `Edit ${featureLabel}` : "Edit Topic"}
                 </Button>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => onDeleteTopic(topic.id)}
-                  className="w-full hover:bg-red-500 hover:text-white transition-colors"
-                >
-                  <Trash className="h-4 w-4 mr-2" />
-                  Delete Topic
-                </Button>
+                {!featureFilter && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => onDeleteTopic(topic.id)}
+                    className="w-full hover:bg-red-500 hover:text-white transition-colors"
+                  >
+                    <Trash className="h-4 w-4 mr-2" />
+                    Delete Topic
+                  </Button>
+                )}
               </CardFooter>
             </Card>
           ))}
         </div>
+
+        {featureFilter && topics.length === 0 && !isLoading && (
+          <div className="text-center py-16">
+            <p className="text-xl text-muted-foreground">No topics with {featureLabel} content yet</p>
+            <p className="text-sm text-muted-foreground mt-2">Go to Topics → Edit a topic → Add {featureLabel} content URL</p>
+          </div>
+        )}
       </div>
     </div>
+  );
+}
+
+export default function TopicsPage() {
+  return (
+    <Suspense fallback={<div />}>
+      <TopicsPageInner />
+    </Suspense>
   );
 }

@@ -4,7 +4,7 @@ import { useGetFavorites } from '@/hooks/api/favorites';
 import { useGetTopicsByChapterIdAndSubjectId } from '@/hooks/api/topics';
 import { useProgress } from '@/hooks/useProgress';
 import { isPaidSubscriptionActive, isPremiumServiceType } from '@/lib/subscription';
-import { TTopic } from '@/types/Topic';
+import { TTopic, FEATURE_TYPE_TO_FIELD, TFeatureType } from '@/types/Topic';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ChevronLeft, Lock } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
@@ -29,6 +29,7 @@ type TopicsScreenProps = {
       chapterTitle?: string;
       subjectTitle?: string;
       chapterNumber?: number;
+      featureType?: string;
     };
   };
 };
@@ -54,6 +55,7 @@ const Topics = ({ navigation, route }: TopicsScreenProps) => {
   const chapterTitle = route?.params?.chapterTitle || 'Topics';
   const subjectTitle = route?.params?.subjectTitle;
   const chapterNumber = route?.params?.chapterNumber;
+  const featureType = route?.params?.featureType;
 
   const { isGuest, user } = useAuth();
   const [showPremiumModal, setShowPremiumModal] = useState(false);
@@ -70,7 +72,7 @@ const Topics = ({ navigation, route }: TopicsScreenProps) => {
   }
 
   const { data, isLoading, error } = useGetTopicsByChapterIdAndSubjectId(
-    { chapterId, subjectId },
+    { chapterId, subjectId, featureType: featureType || undefined },
     { enabled: !isGuest }
   );
   const { isLoading: favoritesLoading } = useGetFavorites({ enabled: !isGuest });
@@ -102,6 +104,19 @@ const Topics = ({ navigation, route }: TopicsScreenProps) => {
         return;
       }
     }
+
+    // If viewing a feature, override the contentURL with the feature-specific URL
+    if (featureType && FEATURE_TYPE_TO_FIELD[featureType as TFeatureType]) {
+      const field = FEATURE_TYPE_TO_FIELD[featureType as TFeatureType];
+      const featureURL = topic[field] as string;
+      if (featureURL) {
+        navigation.navigate('TopicContent', {
+          topic: { ...topic, contentURL: featureURL },
+        });
+        return;
+      }
+    }
+
     navigation.navigate('TopicContent', { topic });
   };
 

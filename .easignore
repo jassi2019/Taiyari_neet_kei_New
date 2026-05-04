@@ -5,6 +5,8 @@
 .vscode
 .vs
 .husky
+ios/
+android/
 node_modules/.cache
 *.log
 .DS_Store
