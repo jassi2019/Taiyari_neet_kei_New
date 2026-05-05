@@ -129,6 +129,9 @@ router.route("/admin/grant").post(authMiddleware, isAdminRole, async (req, res, 
       : await Plan.findOne({ order: [["validUntil", "DESC"]] });
     if (!plan) return res.status(404).json({ message: "Plan not found" });
 
+    // Remove old subscriptions for this user first
+    await Subscription.destroy({ where: { userId: user.id } });
+
     const sub = await Subscription.create({
       userId: user.id,
       planId: plan.id,
