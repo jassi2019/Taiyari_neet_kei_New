@@ -180,6 +180,7 @@ const Topics = ({ navigation, route }: TopicsScreenProps) => {
               const emojiIdx = pickFromId(topic.id + '-e', THUMB_EMOJIS.length);
               const grad = THUMB_GRADIENTS[gradIdx];
               const isPremium = isPremiumServiceType(topic.serviceType);
+              const isLocked = isPremium && (isGuest || !isPaidSubscriptionActive(user?.subscription));
               const done = isCompleted(topic.id);
 
               return (
@@ -194,7 +195,7 @@ const Topics = ({ navigation, route }: TopicsScreenProps) => {
                     <View style={styles.playOverlay}>
                       <Text style={styles.playIcon}>▶</Text>
                     </View>
-                    {isPremium && (
+                    {isLocked && (
                       <View style={styles.lockBadge}>
                         <Lock size={10} color="#fff" strokeWidth={3} />
                       </View>
@@ -207,20 +208,20 @@ const Topics = ({ navigation, route }: TopicsScreenProps) => {
                     <View style={styles.lessonMeta}>
                       <Text style={styles.metaText}>⏱ {(emojiIdx + 6)} min</Text>
 
-                      {/* Access tag: FREE or PAID */}
+                      {/* Access tag: FREE, PAID, or UNLOCKED */}
                       <View
                         style={[
                           styles.tag,
-                          isPremium ? styles.tagPaid : styles.tagFree,
+                          isLocked ? styles.tagPaid : styles.tagFree,
                         ]}
                       >
                         <Text
                           style={[
                             styles.tagText,
-                            isPremium ? styles.tagTextPaid : styles.tagTextFree,
+                            isLocked ? styles.tagTextPaid : styles.tagTextFree,
                           ]}
                         >
-                          {isPremium ? '🔒 PAID PLAN' : '✓ FREE'}
+                          {isLocked ? '🔒 PAID PLAN' : '✓ FREE'}
                         </Text>
                       </View>
 
