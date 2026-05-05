@@ -74,7 +74,7 @@ const Topics = ({ navigation, route }: TopicsScreenProps) => {
   }
 
   const { data, isLoading, error } = useGetTopicsByChapterIdAndSubjectId(
-    { chapterId, subjectId, featureType: featureType || undefined },
+    { chapterId, subjectId },
     { enabled: !isGuest }
   );
   const { isLoading: favoritesLoading } = useGetFavorites({ enabled: !isGuest });
