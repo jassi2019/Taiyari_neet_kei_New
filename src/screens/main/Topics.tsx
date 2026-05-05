@@ -30,6 +30,7 @@ type TopicsScreenProps = {
       subjectTitle?: string;
       chapterNumber?: number;
       featureName?: string;
+      freeOnly?: boolean;
     };
   };
 };
@@ -56,6 +57,7 @@ const Topics = ({ navigation, route }: TopicsScreenProps) => {
   const subjectTitle = route?.params?.subjectTitle;
   const chapterNumber = route?.params?.chapterNumber;
   const featureName = route?.params?.featureName;
+  const freeOnly = route?.params?.freeOnly;
 
   const { isGuest, user } = useAuth();
   const [showPremiumModal, setShowPremiumModal] = useState(false);
@@ -77,9 +79,13 @@ const Topics = ({ navigation, route }: TopicsScreenProps) => {
   );
   const { isLoading: favoritesLoading } = useGetFavorites({ enabled: !isGuest });
 
-  const topicsList: TTopic[] = isGuest
+  const allTopics: TTopic[] = isGuest
     ? getGuestTopicsByChapterAndSubject(chapterId, subjectId)
     : data?.data || [];
+
+  const topicsList: TTopic[] = freeOnly
+    ? allTopics.filter((t) => t.serviceType === 'FREE')
+    : allTopics;
 
   const { isCompleted, getCompletedCount, setChapterTopics } = useProgress();
 
