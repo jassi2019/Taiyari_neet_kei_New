@@ -113,4 +113,40 @@ router.route("/").post(authMiddleware, createV1);
 router.route("/create-order").post(authMiddleware, createOrderV1);
 router.route("/iap/apple").post(authMiddleware, createAppleIapV1);
 
+// Admin-only: grant premium by email
+const { isAdminRole } = require("../../middlewares/auth.z");
+const { User, Subscription, Plan } = require("../../models");
+router.route("/admin/grant").post(authMiddleware, isAdminRole, async (req, res, next) => {
+  try {
+    const { email, planId } = req.body;
+    if (!email) return res.status(400).json({ message: "email is required" });
+
+    const user = await User.findOne({ where: { email } });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const plan = planId
+      ? await Plan.findByPk(planId)
+      : await Plan.findOne({ order: [["validUntil", "DESC"]] });
+    if (!plan) return res.status(404).json({ message: "Plan not found" });
+
+    const sub = await Subscription.create({
+      userId: user.id,
+      planId: plan.id,
+      startDate: new Date(),
+      endDate: plan.validUntil,
+      paymentId: "ADMIN_GRANT",
+      orderId: "ADMIN_GRANT",
+      signature: "ADMIN_GRANT",
+      amount: 0,
+      paymentStatus: "SUCCESS",
+      platform: "RAZORPAY",
+      notes: "Granted by admin",
+    });
+
+    return res.status(201).json({ message: "Premium granted", data: { user: { id: user.id, email: user.email, name: user.name }, subscription: sub } });
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports = router;
