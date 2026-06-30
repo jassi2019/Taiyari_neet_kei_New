@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "name": "Taiyari NEET ki",
+    "slug": "taiyarineetki",
+    "version": "1.0.4",
+    "orientation": "portrait",
+    "icon": "./src/assets/logos/app-icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./src/assets/logos/app-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FDF6F0"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.taiyarineetki.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./src/assets/logos/app-icon.png",
+        "backgroundColor": "#FDF6F0"
+      },
+      "permissions": ["android.permission.INTERNET"],
+      "package": "com.taiyarineetki.app"
+    },
+    "web": {
+      "favicon": "./src/assets/logos/app-icon.png",
+      "bundler": "metro"
+    },
+    "owner": "taiyarineetki",
+    "extra": {
+      "eas": {
+        "projectId": "a23778c5-b354-43eb-80a6-8bb604102cfe"
+      }
+    },
+    "plugins": ["expo-web-browser"]
+  }
+}
